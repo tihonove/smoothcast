@@ -1,0 +1,35 @@
+#!/bin/bash
+# Build a .deb for the current architecture: smoothcast is a static Go binary
+# that doesn't depend on the Ubuntu release, so one package per architecture.
+#   DEB_VERSION=0.1.0 debian/build-deb   → out/*.deb
+# CI calls it the same way (.github/workflows/release.yml).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+: "${DEB_VERSION:?DEB_VERSION is required, e.g. 0.1.0}"
+
+arch=$(dpkg --print-architecture)
+root=$(mktemp -d)
+trap 'rm -rf "$root"' EXIT
+
+make smoothcast
+install -Dm755 smoothcast "$root/usr/bin/smoothcast"
+install -Dm644 LICENSE.capptivo "$root/usr/share/doc/smoothcast/LICENSE.capptivo"
+mkdir -p "$root/DEBIAN"
+cat > "$root/DEBIAN/control" <<CTL
+Package: smoothcast
+Version: $DEB_VERSION
+Architecture: $arch
+Maintainer: Eugene Tihonov <tihonov.ea@gmail.com>
+Section: video
+Priority: optional
+Depends: ffmpeg
+Recommends: curlog, wf-recorder-nc, adwaita-icon-theme
+Homepage: https://github.com/tihonove/smoothcast
+Description: Screen Studio-like post-processing for wlroots screen recordings
+ Takes a recording made without the cursor plus a curlog cursor log and
+ renders a smooth large cursor, click auto-zoom, background, shadow and
+ rounded corners via ffmpeg.
+CTL
+
+mkdir -p out
+dpkg-deb --root-owner-group -b "$root" "out/smoothcast_${DEB_VERSION}_${arch}.deb"
