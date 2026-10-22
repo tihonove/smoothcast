@@ -21,6 +21,9 @@ import (
 	"strings"
 )
 
+// version is set at build time: make VERSION=x.y.z.
+var version = "dev"
+
 func main() {
 	var (
 		logPath    = flag.String("cursor", "", "curlog log (default <recording>.cursor.jsonl)")
@@ -36,12 +39,17 @@ func main() {
 		zoom       = flag.Float64("zoom", 1.5, "auto-zoom magnification, 1 — no zoom")
 		zoomHold   = flag.Float64("zoom-hold", 3, "zooms closer than this, s, merge into one — the camera stays in")
 		crf        = flag.Int("crf", 20, "x264 quality")
+		showVer    = flag.Bool("version", false, "print the version and exit")
 	)
 	flag.Usage = func() {
 		fmt.Fprintln(os.Stderr, "usage: smoothcast [flags] recording.mp4")
 		flag.PrintDefaults()
 	}
 	flag.Parse()
+	if *showVer {
+		fmt.Println("smoothcast", version)
+		return
+	}
 	if flag.NArg() != 1 {
 		flag.Usage()
 		os.Exit(2)
@@ -180,7 +188,8 @@ func run(in, logPath, outPath string, t0 int64, opt options) error {
 	cursorPx := float64(opt.cursorSize) * float64(sw) / float64(ow)
 	cimg, hot, err := xcursor(int(math.Round(cursorPx)))
 	if err != nil {
-		return err
+		fmt.Fprintf(os.Stderr, "smoothcast: %v, using the built-in cursor\n", err)
+		cimg, hot = defaultCursor(int(math.Round(cursorPx)))
 	}
 	cursorPNG := filepath.Join(tmp, "cursor.png")
 	if err := writePNG(cursorPNG, cimg); err != nil {

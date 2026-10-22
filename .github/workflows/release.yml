@@ -1,5 +1,6 @@
-# Tag v0.1.0 → .deb for amd64/arm64 → GitHub Release.
-# The apt repository tihonove/apt picks the packages up from there.
+# Tag v0.1.0 → .deb and a bare static binary for amd64/arm64 → GitHub Release.
+# The apt repository tihonove/apt picks the .debs up from there; install.sh
+# downloads the binary (releases/latest/download/smoothcast-linux-<arch>).
 name: release
 
 on:
@@ -21,11 +22,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
-      - run: DEB_VERSION=${GITHUB_REF_NAME#v} debian/build-deb
+      - run: |
+          DEB_VERSION=${GITHUB_REF_NAME#v} debian/build-deb
+          cp smoothcast "out/smoothcast-linux-$(dpkg --print-architecture)"
       - uses: actions/upload-artifact@v4
         with:
           name: deb-${{ matrix.runner }}
-          path: out/*.deb
+          path: out/*
 
   release:
     needs: deb
@@ -35,6 +38,8 @@ jobs:
         with:
           path: out
           merge-multiple: true
-      - run: gh release create "$GITHUB_REF_NAME" out/*.deb --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
+      - run: |
+          (cd out && sha256sum * > SHA256SUMS)
+          gh release create "$GITHUB_REF_NAME" out/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
         env:
           GH_TOKEN: ${{ github.token }}

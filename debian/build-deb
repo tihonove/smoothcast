@@ -11,7 +11,7 @@ arch=$(dpkg --print-architecture)
 root=$(mktemp -d)
 trap 'rm -rf "$root"' EXIT
 
-make smoothcast
+make smoothcast VERSION="$DEB_VERSION"
 install -Dm755 smoothcast "$root/usr/bin/smoothcast"
 install -Dm644 LICENSE.capptivo "$root/usr/share/doc/smoothcast/LICENSE.capptivo"
 mkdir -p "$root/DEBIAN"

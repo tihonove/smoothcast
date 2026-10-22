@@ -1,8 +1,8 @@
 package main
 
 // Static scene images: the background with a shadow and a rounded window for
-// the recording, and the cursor from the xcursor theme. All computed once; then
-// ffmpeg just overlays them on every frame.
+// the recording, and the cursor (from the xcursor theme or built in). All computed
+// once; then ffmpeg just overlays them on every frame.
 
 import (
 	"encoding/binary"
@@ -233,4 +233,66 @@ func abs(x int) int {
 		return -x
 	}
 	return x
+}
+
+// arrow is the built-in cursor shape: the classic left_ptr outline on a 12×20
+// grid, tip at the origin.
+var arrow = []vec2{{0, 0}, {0, 16}, {4, 12}, {7, 19}, {9, 18}, {6, 11}, {11, 11}}
+
+// defaultCursor draws a black arrow with a white outline (like Adwaita) on a
+// size×size canvas,
+// laid out like the arrow in a xcursor theme, so -cursor-size means the
+// same with and without a theme. Used when the system has no cursor theme.
+func defaultCursor(size int) (*image.RGBA, image.Point) {
+	if size < 8 {
+		size = 8
+	}
+	s := float64(size)
+	pad, unit := 0.12*s, 0.78*s/20 // the arrow is ~78% of the canvas height
+	pts := make([]vec2, len(arrow))
+	for i, p := range arrow {
+		pts[i] = vec2{pad + p.x*unit, pad + p.y*unit}
+	}
+	stroke := math.Max(1, 1.2*unit)
+
+	// Signed distance to the polygon: negative inside.
+	dist := func(x, y float64) float64 {
+		d, in := math.Inf(1), false
+		for i, j := 0, len(pts)-1; i < len(pts); j, i = i, i+1 {
+			a, b := pts[j], pts[i]
+			if (a.y > y) != (b.y > y) && x < a.x+(y-a.y)/(b.y-a.y)*(b.x-a.x) {
+				in = !in
+			}
+			ex, ey := b.x-a.x, b.y-a.y
+			t := clamp(((x-a.x)*ex+(y-a.y)*ey)/(ex*ex+ey*ey), 0, 1)
+			d = math.Min(d, math.Hypot(x-a.x-t*ex, y-a.y-t*ey))
+		}
+		if in {
+			return -d
+		}
+		return d
+	}
+
+	const ss = 4 // supersampling per axis
+	img := image.NewRGBA(image.Rect(0, 0, size, size))
+	for py := 0; py < size; py++ {
+		for px := 0; px < size; px++ {
+			var fill, edge float64
+			for sy := 0; sy < ss; sy++ {
+				for sx := 0; sx < ss; sx++ {
+					d := dist(float64(px)+(float64(sx)+0.5)/ss, float64(py)+(float64(sy)+0.5)/ss)
+					switch {
+					case d < -stroke/2:
+						fill++
+					case d < stroke/2:
+						edge++
+					}
+				}
+			}
+			a := (fill + edge) / ss / ss
+			v := uint8(math.Round(255 * edge / ss / ss)) // premultiplied: the white edge contributes, the black fill doesn't
+			img.SetRGBA(px, py, color.RGBA{v, v, v, uint8(math.Round(255 * a))})
+		}
+	}
+	return img, image.Point{int(math.Round(pad)), int(math.Round(pad))}
 }

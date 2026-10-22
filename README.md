@@ -20,6 +20,13 @@ curl -fsSL https://tihonove.github.io/apt/install.sh | sudo sh
 sudo apt install smoothcast
 ```
 
+Any other Linux (amd64, arm64) — a single static binary into `~/.local/bin`, no
+root needed; run it again to update:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/tihonove/smoothcast/main/install.sh | sh
+```
+
 From source: `make install` (into `~/.local/bin`, needs Go). At runtime it needs
 `ffmpeg` and `ffprobe`.
 
