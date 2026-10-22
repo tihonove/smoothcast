@@ -34,12 +34,12 @@ October 2025):
 
    **Unverified:** whether the cursor session survives next to an
    ext-copy-capture capture without the cursor. To check: build soreau's branch
-   with that line (`wf-recorder-ecc/`), run curlog + `swaymsg seat seat0 cursor
+   with that line (`wf-recorder-ecc/`), run wl-castlog + `swaymsg seat seat0 cursor
    set` as with grim. If it breaks there too, that's an argument for a wlroots
    bug (item 3).
 3. Separately, report to wlroots/sway that wlr-screencopy's `overlay_cursor=1`
    breaks the ext-image-copy-capture cursor session — a bug, not a feature; the
-   minimal reproducer is curlog + `grim -c` in a loop.
+   minimal reproducer is wl-castlog + `grim -c` in a loop.
 4. Once everything is merged, `wf-recorder-nc` is no longer needed and
    screenrec switches to the system wf-recorder as soon as Ubuntu's package
    catches up.

@@ -8,7 +8,7 @@ import (
 	"sort"
 )
 
-// curlog log: time is CLOCK_REALTIME microseconds, coordinates are region pixels.
+// wl-castlog log: time is CLOCK_REALTIME microseconds, coordinates are region pixels.
 type logLine struct {
 	V      int     `json:"v"`
 	T      int64   `json:"t"`
@@ -28,7 +28,7 @@ type track struct {
 	w, h    float64
 	samples []sample
 	clicks  []sample
-	stop    int64 // when curlog was stopped, µs
+	stop    int64 // when wl-castlog was stopped, µs
 }
 
 func loadTrack(path string) (*track, int64, error) {

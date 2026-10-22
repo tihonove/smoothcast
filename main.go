@@ -4,7 +4,7 @@
 //
 //	smoothcast [flags] recording.mp4
 //
-// Expects the curlog log next to the recording (recording.cursor.jsonl). Frames
+// Expects the wl-castlog log next to the recording (recording.cursor.jsonl). Frames
 // never pass through Go: this computes trajectories and images, ffmpeg assembles
 // the video — per-frame cursor and camera positions are fed to it via sendcmd.
 package main
@@ -26,9 +26,9 @@ var version = "dev"
 
 func main() {
 	var (
-		logPath    = flag.String("cursor", "", "curlog log (default <recording>.cursor.jsonl)")
+		logPath    = flag.String("cursor", "", "wl-castlog log (default <recording>.cursor.jsonl)")
 		outPath    = flag.String("o", "", "output file (default <recording>-smooth.mp4)")
-		t0         = flag.Int64("t0", 0, "first frame time, µs CLOCK_REALTIME (otherwise: curlog stop − duration)")
+		t0         = flag.Int64("t0", 0, "first frame time, µs CLOCK_REALTIME (otherwise: wl-castlog stop − duration)")
 		bgPath     = flag.String("bg", "", "background image (default: gradient)")
 		width      = flag.Int("width", 1920, "long side of the output, 0 — same as the scene")
 		padding    = flag.Float64("padding", 120, "padding around the recording, px per 1920 of the long side")

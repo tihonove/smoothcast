@@ -23,10 +23,10 @@ Maintainer: Eugene Tihonov <tihonov.ea@gmail.com>
 Section: video
 Priority: optional
 Depends: ffmpeg
-Recommends: curlog, wf-recorder-nc, adwaita-icon-theme
+Recommends: wl-castlog, wf-recorder-nc, adwaita-icon-theme
 Homepage: https://github.com/tihonove/smoothcast
 Description: Screen Studio-like post-processing for wlroots screen recordings
- Takes a recording made without the cursor plus a curlog cursor log and
+ Takes a recording made without the cursor plus a wl-castlog cursor log and
  renders a smooth large cursor, click auto-zoom, background, shadow and
  rounded corners via ffmpeg.
 CTL

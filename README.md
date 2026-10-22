@@ -62,7 +62,7 @@ smoothcast -zoom 2 -smoothness 0.7 -bg wallpaper.jpg -o final.mp4 demo.mp4
 
 **Video** — anything ffmpeg can read, with the cursor *not* drawn into the frames.
 
-**Cursor log** — JSONL in the [curlog](https://github.com/tihonove/curlog)
+**Cursor log** — JSONL in the [wl-castlog](https://github.com/tihonove/wl-castlog)
 format. Time is in microseconds (any clock, as long as `-t0` uses the same one),
 coordinates are pixels of the recorded area:
 
@@ -85,13 +85,13 @@ coordinates are pixels of the recorded area:
 ## Recording the inputs
 
 Any tool that produces the two files will do. The author's setup on sway uses
-[curlog](https://github.com/tihonove/curlog) for the log and
+[wl-castlog](https://github.com/tihonove/wl-castlog) for the log and
 [wf-recorder-nc](https://github.com/tihonove/wf-recorder) (wf-recorder with a
 `--no-cursor` flag) for the video, both in the same apt repository:
 
 ```sh
 geom=$(slurp)                       # pick a region (keep width/height even for x264)
-curlog -g "$geom" -f demo.cursor.jsonl &
+wl-castlog -g "$geom" -f demo.cursor.jsonl &
 wf-recorder-nc --no-cursor -D -g "$geom" -r 60 -f demo.mp4
 # Ctrl+C to stop, then:
 kill -INT %1
